@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="no">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#111827">
+  <link rel="manifest" href="manifest.json">
+  <title>Matplanlegger</title>
+
+  <style>
+    :root {
+      --bg: #f6f7fb;
+      --card: #fff;
+      --text: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --accent: #111827;
+      --good: #15803d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, sans-serif;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      background: rgba(246, 247, 251, 0.94);
+      backdrop-filter: blur(12px);
+      z-index: 3;
+      padding: 18px 16px 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 27px;
+    }
+
+    h2 {
+      font-size: 20px;
+      margin: 0 0 14px;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 3px;
+    }
+
+    main {
+      max-width: 760px;
+      margin: auto;
+      padding: 12px 16px 100px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+      margin: 12px 0;
+      box-shadow: 0 2px 8px #00000008;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: center;
+      z-index: 4;
+    }
+
+    nav button {
+      border: 0;
+      background: none;
+      padding: 11px 10px 12px;
+      flex: 1;
+      max-width: 150px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    nav button.active {
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    button,
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 11px 14px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 650;
+      cursor: pointer;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    button.secondary,
+    .btn.secondary {
+      background: #eef0f4;
+      color: var(--text);
+    }
+
+    button.danger {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .between {
+      justify-content: space-between;
+    }
+
+    .grow {
+      flex: 1;
+    }
+
+    .row button + button {
+      margin-left: 2px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      background: #fff;
+      font: inherit;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    label {
+      font-size: 13px;
+      color: var(--muted);
+      display: block;
+      margin: 10px 0 5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+
+    .stat {
+      font-size: 25px;
+      font-weight: 800;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .item:last-child {
+      border-bottom: 0;
+    }
+
+    .progress {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .progress i {
+      display: block;
+      height: 100%;
+      background: #111827;
+      border-radius: 99px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 30px 10px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 78px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 10px 15px;
+      border-radius: 10px;
+      display: none;
+      z-index: 10;
+    }
+
+    .search {
+      margin-bottom: 4px;
+    }
+
+    .recipe-link {
+      cursor: pointer;
+    }
+
+    .recipe-link:hover {
+      opacity: 0.75;
+    }
+
+    .back-button {
+      margin-bottom: 12px;
+    }
+
+    .instructions {
+      white-space: pre-wrap;
+      line-height: 1.6;
+    }
+
+    .ingredient-row {
+      margin-top: 8px;
+      align-items: stretch;
+    }
+
+    /* Bilde-stiler */
+    .thumb-img {
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #e5e7eb;
+      flex-shrink: 0;
+    }
+
+    .detail-media {
+      margin: 12px 0;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f3f4f6;
+    }
+
+    .detail-media img {
+      display: block;
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+    }
+
+    .edit-panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 12px;
+      background: #fafafa;
+    }
+
+    .edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .edit-actions button {
+      flex: 1;
+    }
+
+    .video-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .grid3 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Matplanlegger</h1>
+    <div class="sub">Matvarer · oppskrifter · dagens kcal og protein</div>
+  </header>
+
+  <main id="app"></main>
+
+  <nav>
+    <button data-tab="today" onclick="setTab('today')">🏠<br>I dag</button>
+    <button data-tab="foods" onclick="setTab('foods')">🥛<br>Matvarer</button>
+    <button data-tab="recipes" onclick="setTab('recipes')">🍝<br>Oppskrifter</button>
+  </nav>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const KEY = 'matplanlegger-v1';
+
+    const seed = {
+      goals: { kcal: 2000, protein: 150 },
+      foods: [
+        { id: 1, name: 'Lettmelk', kcal: 42, protein: 3.5 },
+        { id: 2, name: 'Kyllingfilet', kcal: 110, protein: 23 },
+        { id: 3, name: 'Gresk yoghurt', kcal: 50, protein: 7.8 },
+        { id: 4, name: 'Sukrin', kcal: 0, protein: 0 },
+        { id: 5, name: 'Egg', kcal: 143, protein: 12.6 }
+      ],
+      recipes: [
+        {
+          id: 1,
+          name: 'Protein-yoghurt',
+          servings: 1,
+          videoUrl: '',
+          ings: [
+            { foodId: 3, grams: 200 },
+            { foodId: 4, grams: 10 }
+          ],
+          description: 'Bland ingrediensene sammen og server.'
+        }
+      ],
+      today: []
+    };
+
+    let data = JSON.parse(localStorage.getItem(KEY) || 'null') || seed;
+    let tab = 'today';
+    let openRecipeId = null;
+    let editingFoodId = null;
+    let editingRecipeId = null;
+
+    // IndexedDB for bildelagring
+    const MEDIA_DB = 'matplanlegger-media-v1';
+    const MEDIA_STORE = 'media';
+    function mediaDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(MEDIA_DB, 1);
+        req.onupgradeneeded = () => req.result.createObjectStore(MEDIA_STORE);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function putMedia(id, blob) {
+      const db = await mediaDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(MEDIA_STORE, 'readwrite');
+        tx.objectStore(MEDIA_STORE).put(blob, id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getMedia(id) {
+      if (!id) return null;
+      const db = await mediaDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(MEDIA_STORE, 'readonly');
+        const req = tx.objectStore(MEDIA_STORE).get(id);
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function deleteMedia(id) {
+      if (!id) return;
+      const db = await mediaDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(MEDIA_STORE, 'readwrite');
+        tx.objectStore(MEDIA_STORE).delete(id);
+        tx.oncomplete = resolve;
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    function loadMediaForPage() {
+      document.querySelectorAll('[data-media-id]').forEach(async el => {
+        const blob = await getMedia(el.dataset.mediaId);
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        el.src = url;
+        el.classList.remove('hidden');
+      });
+    }
+
+    const save = () => {
+      localStorage.setItem(KEY, JSON.stringify(data));
+    };
+
+    function setTab(t) {
+      tab = t;
+      openRecipeId = null;
+      editingFoodId = null;
+      editingRecipeId = null;
+      render();
+    }
+
+    const food = id => data.foods.find(x => x.id == id);
+
+    function calcIng(i) {
+      const f = food(i.foodId);
+      if (!f) return { k: 0, p: 0 };
+      const grams = Number(i.grams ?? 0);
+      return {
+        k: (f.kcal * grams) / 100,
+        p: (f.protein * grams) / 100
+      };
+    }
+
+    function calcRecipe(r) {
+      let k = 0, p = 0;
+      r.ings.forEach(i => {
+        const x = calcIng(i);
+        k += x.k;
+        p += x.p;
+      });
+      return {
+        k: k / (r.servings || 1),
+        p: p / (r.servings || 1)
+      };
+    }
+
+    function esc(s) {
+      return String(s || '').replace(/[&<>"']/g, m => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[m]));
+    }
+
+    function toast(t) {
+      const e = document.getElementById('toast');
+      e.textContent = t;
+      e.style.display = 'block';
+      setTimeout(() => { e.style.display = 'none'; }, 1800);
+    }
+
+    function render() {
+      document.querySelectorAll('nav button').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === tab);
+      });
+
+      const views = {
+        today: viewToday,
+        foods: viewFoods,
+        recipes: viewRecipes
+      };
+
+      document.getElementById('app').innerHTML = views[tab] ? views[tab]() : '';
+      loadMediaForPage();
+    }
+
+    function totals() {
+      let k = 0, p = 0;
+      data.today.forEach(x => { k += x.k; p += x.p; });
+      return { k, p };
+    }
+
+    function viewToday() {
+      const t = totals();
+      const g = data.goals;
+
+      return `
+        <section class="card">
+          <div class="row between">
+            <div>
+              <div class="small">Dagens kcal</div>
+              <div class="stat">${Math.round(t.k)} <span class="small">/ ${g.kcal}</span></div>
+            </div>
+            <div>
+              <div class="small">Protein</div>
+              <div class="stat">${t.p.toFixed(1)} g <span class="small">/ ${g.protein} g</span></div>
+            </div>
+          </div>
+          <div class="progress">
+            <i style="width:${Math.min(100, (t.k / g.kcal) * 100)}%"></i>
+          </div>
+          <div class="small" style="margin-top:8px">
+            ${Math.max(0, Math.round(g.kcal - t.k))} kcal og 
+            ${Math.max(0, g.protein - t.p).toFixed(1)} g protein igjen
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Legg til mat</h2>
+          <div class="grid">
+            <select id="addRecipe">
+              ${data.recipes.map(r => {
+                const c = calcRecipe(r);
+                return `<option value="${r.id}">${esc(r.name)} — ${c.k.toFixed(0)} kcal / ${c.p.toFixed(1)} g</option>`;
+              }).join('')}
+            </select>
+            <button onclick="addRecipeToToday()">+ Legg til</button>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>I dag</h2>
+          ${data.today.length ? data.today.map((x, i) => `
+            <div class="item row between">
+              <div>
+                <b>${esc(x.name)}</b>
+                <div class="small">${x.k.toFixed(0)} kcal · ${x.p.toFixed(1)} g protein</div>
+              </div>
+              <button class="danger" onclick="removeToday(${i})">Fjern</button>
+            </div>
+          `).join('') : '<div class="empty">Du har ikke lagt til noe ennå.</div>'}
+        </section>
+
+        <section class="card">
+          <h2>Mål</h2>
+          <div class="grid">
+            <div><label>Maks kcal</label><input id="goalK" type="number" value="${g.kcal}"></div>
+            <div><label>Proteinmål (g)</label><input id="goalP" type="number" value="${g.protein}"></div>
+          </div>
+          <button style="margin-top:10px" onclick="saveGoals()">Lagre mål</button>
+        </section>
+      `;
+    }
+
+    function viewFoods() {
+      const search = window.foodSearch || '';
+      const filtered = data.foods.filter(f => f.name.toLowerCase().includes(search.toLowerCase()));
+
+      return `
+        <section class="card">
+          <h2>Matvarebibliotek</h2>
+          <input class="search" type="search" placeholder="🔎 Søk etter matvare..." value="${esc(search)}" oninput="foodSearchChanged(this.value)">
+          <div class="grid">
+            <div><label>Navn</label><input id="fn" placeholder="F.eks. Havregryn"></div>
+            <div><label>kcal per 100 g</label><input id="fk" type="number" step=".1"></div>
+            <div><label>Protein per 100 g</label><input id="fp" type="number" step=".1"></div>
+          </div>
+          <label>Bilde (valgfritt)</label>
+          <input id="fimg" type="file" accept="image/*">
+          <button style="margin-top:10px" onclick="addFood()">+ Legg til matvare</button>
+        </section>
+
+        <section class="card">
+          ${filtered.length ? filtered.map(f => `
+            <div class="item">
+              <div class="row between">
+                <div class="row grow" style="gap:12px">
+                  ${f.imageId ? `<img class="thumb-img hidden" data-media-id="${esc(f.imageId)}" alt="${esc(f.name)}">` : ''}
+                  <div>
+                    <b>${esc(f.name)}</b>
+                    <div class="small">${f.kcal} kcal · ${f.protein} g protein per 100 g</div>
+                  </div>
+                </div>
+                <div class="row">
+                  <button class="secondary" onclick="editFood(${f.id})">Endre</button>
+                  <button class="danger" onclick="deleteFood(${f.id})">Slett</button>
+                </div>
+              </div>
+              ${editingFoodId == f.id ? foodEditPanel(f) : ''}
+            </div>
+          `).join('') : '<div class="empty">Ingen matvarer funnet.</div>'}
+        </section>
+      `;
+    }
+
+    function foodEditPanel(f) {
+      return `
+        <div class="edit-panel">
+          <h3>Endre matvare</h3>
+          <label>Navn</label><input id="editFn" value="${esc(f.name)}">
+          <div class="grid">
+            <div><label>kcal per 100 g</label><input id="editFk" type="number" step=".1" value="${f.kcal}"></div>
+            <div><label>Protein per 100 g</label><input id="editFp" type="number" step=".1" value="${f.protein}"></div>
+          </div>
+          <label>Bytt bilde</label><input id="editFimg" type="file" accept="image/*">
+          <div class="edit-actions">
+            <button onclick="saveFoodEdit(${f.id})">Lagre</button>
+            <button class="secondary" onclick="cancelFoodEdit()">Avbryt</button>
+          </div>
+        </div>`;
+    }
+
+    function viewRecipes() {
+      if (openRecipeId !== null) return viewRecipeDetails(openRecipeId);
+      const search = window.recipeSearch || '';
+      const filtered = data.recipes.filter(r => 
+        r.name.toLowerCase().includes(search.toLowerCase()) || 
+        r.ings.some(i => { const f = food(i.foodId); return f && f.name.toLowerCase().includes(search.toLowerCase()); })
+      );
+
+      return `
+        <section class="card">
+          <h2>Ny oppskrift</h2>
+          <label>Navn</label><input id="rn" placeholder="F.eks. Proteinpannekaker">
+          <label>Antall porsjoner</label><input id="rs" type="number" value="1" min="1">
+          <label>Fremgangsmåte / beskrivelse</label><textarea id="rd" placeholder="Skriv her hvordan retten lages..."></textarea>
+          <label>Videolenke (f.eks. Instagram, TikTok, YouTube)</label><input id="rvlink" placeholder="https://instagram.com/p/...">
+          <label>Bilde (valgfritt)</label><input id="rimg" type="file" accept="image/*">
+          
+          <h3 style="margin-top:18px">Ingredienser</h3>
+          <div id="ings"></div>
+          <button class="secondary" style="margin-top:10px" onclick="addIngRow()">+ Ingrediens</button>
+          <button style="margin-top:10px" onclick="addRecipeNew()">Lagre oppskrift</button>
+        </section>
+
+        <section class="card">
+          <h2>Oppskriftsbibliotek</h2>
+          <input class="search" type="search" placeholder="🔎 Søk etter oppskrift..." value="${esc(search)}" oninput="recipeSearchChanged(this.value)">
+          ${filtered.length ? filtered.map(r => {
+            const c = calcRecipe(r);
+            return `
+              <div class="item">
+                <div class="row between recipe-link" onclick="openRecipe(${r.id})">
+                  <div class="row grow" style="gap:12px">
+                    ${r.imageId ? `<img class="thumb-img hidden" data-media-id="${esc(r.imageId)}" alt="${esc(r.name)}">` : ''}
+                    <div>
+                      <b>${esc(r.name)}</b>
+                      <div class="small">${c.k.toFixed(0)} kcal · ${c.p.toFixed(1)} g protein per porsjon</div>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <button class="secondary" onclick="event.stopPropagation(); editRecipe(${r.id})">Endre</button>
+                    <button class="danger" onclick="event.stopPropagation(); deleteRecipe(${r.id})">Slett</button>
+                  </div>
+                </div>
+                ${editingRecipeId == r.id ? recipeEditPanel(r) : ''}
+              </div>`;
+          }).join('') : '<div class="empty">Ingen oppskrifter funnet.</div>'}
+        </section>`;
+    }
+
+    function recipeEditPanel(r) {
+      return `
+        <div class="edit-panel" onclick="event.stopPropagation()">
+          <h3>Endre oppskrift</h3>
+          <label>Navn</label><input id="editRn" value="${esc(r.name)}">
+          <label>Antall porsjoner</label><input id="editRs" type="number" min="1" value="${r.servings}">
+          <label>Fremgangsmåte / beskrivelse</label><textarea id="editRd">${esc(r.description || '')}</textarea>
+          <label>Videolenke (Instagram, YouTube osv.)</label><input id="editRvlink" value="${esc(r.videoUrl || '')}">
+          <label>Bytt bilde</label><input id="editRimg" type="file" accept="image/*">
+          
+          <h3 style="margin-top:18px">Ingredienser</h3>
+          <div id="editIngs">
+            ${r.ings.map(i => `
+              <div class="grid3 ingredient-row">
+                <select class="edit-ingredient-food">
+                  ${data.foods.map(f => `<option value="${f.id}" ${f.id == i.foodId ? 'selected' : ''}>${esc(f.name)}</option>`).join('')}
+                </select>
+                <input type="number" class="edit-grams" placeholder="Gram" value="${i.grams ?? 0}">
+                <button class="danger" onclick="this.parentElement.remove()">×</button>
+              </div>
+            `).join('')}
+          </div>
+          <button class="secondary" style="margin-top:10px" onclick="addEditIngRow()">+ Ingrediens</button>
+          
+          <div class="edit-actions">
+            <button onclick="saveRecipeEdit(${r.id})">Lagre endringer</button>
+            <button class="secondary" onclick="cancelRecipeEdit()">Avbryt</button>
+          </div>
+        </div>`;
+    }
+
+    function viewRecipeDetails(id) {
+      const r = data.recipes.find(x => x.id == id);
+      if (!r) { openRecipeId = null; return viewRecipes(); }
+      const c = calcRecipe(r);
+
+      return `
+        <section class="card">
+          <button class="secondary back-button" onclick="closeRecipe()">← Tilbake til oppskrifter</button>
+          <h2>${esc(r.name)}</h2>
+          
+          ${r.imageId ? `<div class="detail-media"><img class="hidden" data-media-id="${esc(r.imageId)}" alt="${esc(r.name)}"></div>` : ''}
+
+          <div class="small">${r.servings} porsjon(er)</div>
+          <div class="grid" style="margin-top:12px">
+            <div><div class="small">Kalorier per porsjon</div><div class="stat">${c.k.toFixed(0)} kcal</div></div>
+            <div><div class="small">Protein per porsjon</div><div class="stat">${c.p.toFixed(1)} g</div></div>
+          </div>
+
+          ${r.videoUrl ? `
+            <a href="${esc(r.videoUrl)}" target="_blank" rel="noopener" class="btn secondary video-btn">
+              📺 Se video (Instagram / nett)
+            </a>
+          ` : ''}
+
+          <h3 style="margin-top:20px">Ingredienser</h3>
+          <ul>
+            ${r.ings.map(i => {
+              const f = food(i.foodId);
+              return f ? `<li>${i.grams} g ${esc(f.name)}</li>` : '';
+            }).join('')}
+          </ul>
+
+          <h3 style="margin-top:20px">Fremgangsmåte</h3>
+          <div class="instructions">${esc(r.description || 'Ingen beskrivelse lagt til.')}</div>
+        </section>
+      `;
+    }
+
+    // Handlinger / Funksjoner
+    function foodSearchChanged(val) { window.foodSearch = val; render(); }
+    function recipeSearchChanged(val) { window.recipeSearch = val; render(); }
+
+    async function addFood() {
+      const name = document.getElementById('fn').value.trim();
+      const kcal = parseFloat(document.getElementById('fk').value);
+      const protein = parseFloat(document.getElementById('fp').value);
+      const imgFile = document.getElementById('fimg').files[0];
+
+      if (!name || isNaN(kcal) || isNaN(protein)) return toast('Fyll ut navn og verdier!');
+
+      const id = Date.now();
+      let imageId = null;
+
+      if (imgFile) {
+        imageId = `food-${id}`;
+        await putMedia(imageId, imgFile);
+      }
+
+      data.foods.push({ id, name, kcal, protein, imageId });
+      save();
+      toast('Matvare lagt til');
+      render();
+    }
+
+    function editFood(id) { editingFoodId = id; render(); }
+    function cancelFoodEdit() { editingFoodId = null; render(); }
+
+    async function saveFoodEdit(id) {
+      const f = food(id);
+      if (!f) return;
+      const name = document.getElementById('editFn').value.trim();
+      const kcal = parseFloat(document.getElementById('editFk').value);
+      const protein = parseFloat(document.getElementById('editFp').value);
+      const imgFile = document.getElementById('editFimg').files[0];
+
+      if (!name || isNaN(kcal) || isNaN(protein)) return toast('Fyll ut gyldige verdier');
+
+      f.name = name;
+      f.kcal = kcal;
+      f.protein = protein;
+
+      if (imgFile) {
+        if (!f.imageId) f.imageId = `food-${f.id}`;
+        await putMedia(f.imageId, imgFile);
+      }
+
+      save();
+      editingFoodId = null;
+      toast('Matvare oppdatert');
+      render();
+    }
+
+    async function deleteFood(id) {
+      const f = food(id);
+      if (f && f.imageId) await deleteMedia(f.imageId);
+      data.foods = data.foods.filter(x => x.id != id);
+      save();
+      render();
+    }
+
+    function addIngRow() {
+      const container = document.getElementById('ings');
+      if (!container) return;
+      const div = document.createElement('div');
+      div.className = 'grid3 ingredient-row';
+      div.innerHTML = `
+        <select class="ing-food">
+          ${data.foods.map(f => `<option value="${f.id}">${esc(f.name)}</option>`).join('')}
+        </select>
+        <input type="number" class="ing-grams" placeholder="Gram">
+        <button class="danger" onclick="this.parentElement.remove()">×</button>
+      `;
+      container.appendChild(div);
+    }
+
+    function addEditIngRow() {
+      const container = document.getElementById('editIngs');
+      if (!container) return;
+      const div = document.createElement('div');
+      div.className = 'grid3 ingredient-row';
+      div.innerHTML = `
+        <select class="edit-ingredient-food">
+          ${data.foods.map(f => `<option value="${f.id}">${esc(f.name)}</option>`).join('')}
+        </select>
+        <input type="number" class="edit-grams" placeholder="Gram">
+        <button class="danger" onclick="this.parentElement.remove()">×</button>
+      `;
+      container.appendChild(div);
+    }
+
+    async function addRecipeNew() {
+      const name = document.getElementById('rn').value.trim();
+      const servings = parseInt(document.getElementById('rs').value) || 1;
+      const description = document.getElementById('rd').value.trim();
+      const videoUrl = document.getElementById('rvlink').value.trim();
+      const imgFile = document.getElementById('rimg').files[0];
+
+      const ings = [];
+      document.querySelectorAll('#ings .ingredient-row').forEach(row => {
+        const foodId = parseInt(row.querySelector('.ing-food').value);
+        const grams = parseFloat(row.querySelector('.ing-grams').value);
+        if (foodId && !isNaN(grams)) ings.push({ foodId, grams });
+      });
+
+      if (!name || !ings.length) return toast('Oppgi navn og minst én ingrediens!');
+
+      const id = Date.now();
+      let imageId = null;
+
+      if (imgFile) {
+        imageId = `recipe-${id}`;
+        await putMedia(imageId, imgFile);
+      }
+
+      data.recipes.push({ id, name, servings, description, videoUrl, imageId, ings });
+      save();
+      toast('Oppskrift lagret');
+      render();
+    }
+
+    function openRecipe(id) { openRecipeId = id; render(); }
+    function closeRecipe() { openRecipeId = null; render(); }
+    function editRecipe(id) { editingRecipeId = id; render(); }
+    function cancelRecipeEdit() { editingRecipeId = null; render(); }
+
+    async function saveRecipeEdit(id) {
+      const r = data.recipes.find(x => x.id == id);
+      if (!r) return;
+
+      const name = document.getElementById('editRn').value.trim();
+      const servings = parseInt(document.getElementById('editRs').value) || 1;
+      const description = document.getElementById('editRd').value.trim();
+      const videoUrl = document.getElementById('editRvlink').value.trim();
+      const imgFile = document.getElementById('editRimg').files[0];
+
+      const ings = [];
+      document.querySelectorAll('#editIngs .ingredient-row').forEach(row => {
+        const foodId = parseInt(row.querySelector('.edit-ingredient-food').value);
+        const grams = parseFloat(row.querySelector('.edit-grams').value);
+        if (foodId && !isNaN(grams)) ings.push({ foodId, grams });
+      });
+
+      if (!name || !ings.length) return toast('Fyll ut navn og ingredienser!');
+
+      r.name = name;
+      r.servings = servings;
+      r.description = description;
+      r.videoUrl = videoUrl;
+      r.ings = ings;
+
+      if (imgFile) {
+        if (!r.imageId) r.imageId = `recipe-${r.id}`;
+        await putMedia(r.imageId, imgFile);
+      }
+
+      save();
+      editingRecipeId = null;
+      toast('Oppskrift oppdatert');
+      render();
+    }
+
+    async function deleteRecipe(id) {
+      const r = data.recipes.find(x => x.id == id);
+      if (r && r.imageId) await deleteMedia(r.imageId);
+      data.recipes = data.recipes.filter(x => x.id != id);
+      save();
+      render();
+    }
+
+    function addRecipeToToday() {
+      const id = document.getElementById('addRecipe').value;
+      const r = data.recipes.find(x => x.id == id);
+      if (!r) return;
+      const c = calcRecipe(r);
+      data.today.push({ name: r.name, k: c.k, p: c.p });
+      save();
+      toast('Lagt til i dag!');
+      render();
+    }
+
+    function removeToday(index) {
+      data.today.splice(index, 1);
+      save();
+      render();
+    }
+
+    function saveGoals() {
+      data.goals.kcal = parseInt(document.getElementById('goalK').value) || 2000;
+      data.goals.protein = parseInt(document.getElementById('goalP').value) || 150;
+      save();
+      toast('Mål lagret');
+      render();
+    }
+
+    // Initial oppstart
+    render();
+  </script>
+</body>
+
+</html>
