@@ -342,6 +342,25 @@
   <div id="toast" class="toast"></div>
 
   <script>
+
+    const SUPABASE_URL = 'https://qbudsijjeonibmvjsuwq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_JU4bQ7L7zlJo1KyjrADfqw_aL6LGp5D';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+    async function testSupabase() {
+  const { data, error } = await supabaseClient
+    .from('foods')
+    .select('*')
+    .limit(1);
+
+  console.log('Supabase test:', { data, error });
+}
+
+testSupabase();
+    
     const KEY = 'matplanlegger-v1';
 
     const seed = {
